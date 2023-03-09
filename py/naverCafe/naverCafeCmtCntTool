@@ -1,0 +1,38 @@
+import requests
+from bs4 import BeautifulSoup
+
+# 크롤링할 카페의 URL과 게시글 ID
+cafe_url = "https://cafe.naver.com/gdjp2"
+article_id = "5225"
+
+# 댓글 페이지 URL
+comment_url = f"{cafe_url}/ArticleCommentList.nhn?search.clubid=&search.articleid={article_id}&search.commentid=&search.page="
+
+# 댓글 페이지 수 (1 페이지에는 최대 20개의 댓글이 있음)
+page_num = 1
+
+# 댓글 크롤링 함수
+def crawl_comments():
+    global page_num
+    
+    # 댓글 페이지 HTML 파싱
+    url = comment_url + str(page_num)
+    response = requests.get(url)
+    soup = BeautifulSoup(response.text, 'html.parser')
+
+    # 댓글 추출
+    comments = []
+    for comment in soup.select('div.u_cbox_content_wrap'):
+        comments.append(comment.select_one('span.u_cbox_contents').text.strip())
+
+    # 다음 페이지가 있는지 확인
+    next_btn = soup.select_one('div.u_cbox_paginate a.u_cbox_next')
+    if next_btn:
+        page_num += 1
+        return comments + crawl_comments()
+    else:
+        return comments
+
+# 댓글 크롤링 실행
+comments = crawl_comments()
+print(comments)

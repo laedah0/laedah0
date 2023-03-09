@@ -1,0 +1,78 @@
+import requests
+import re
+from bs4 import BeautifulSoup
+
+# 웹페이지 가져오기
+url = f'https://laedah0.github.io/comments.html'
+# url = f'https://cafe.naver.com/gdjp2/5225'
+response = requests.get(url, headers={'User-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36'})
+html = response.text
+
+# HTML 파싱
+soup = BeautifulSoup(html, 'html.parser')
+
+# print(soup)
+
+# a_tags = soup.find_all('a', 'comment_nickname')
+# print(a_tags)
+
+span_tags = soup.find_all('span', 'text_comment')
+# print(span_tags)
+
+numbers = []
+
+def extract_numbers(string):
+    """
+    Given a string, extracts all numbers separated by ",", ".", or whitespace characters and returns them as a list.
+    """
+    if string is None:
+        return 
+    # 문자열에서 숫자만 추출하여 배열에 담을 리스트 생성
+    # numbers = []
+    
+    # 문자열을 "," "." 혹은 공백으로 분리하여 리스트에 담기
+    print(string)
+    parts = re.split('[,.\\s]+', string)
+    #print(parts)
+    
+    # 리스트에 담긴 문자열들 중에서 숫자인 것만 추출하여 숫자로 변환하여 numbers 리스트에 추가
+    for part in parts:
+        if part.isdigit():
+            #print(int(part))
+            numbers.append(int(part))
+    
+    return 
+
+for span_tag in span_tags:
+    # print(span_tag.string)
+    extract_numbers(span_tag.string)
+    
+
+
+def count_numbers(numbers):
+    """
+    Given a list of numbers, counts the occurrences of each number and prints the counts.
+    """
+    # 딕셔너리 생성
+    counts = {}
+    num = 0
+    
+    # 배열에서 각 숫자의 출현 횟수 세기
+    for number in numbers:
+        if number in counts:
+            counts[number] += 1
+        else:
+            counts[number] = 1
+    
+    # 각 숫자와 출현 횟수 출력
+    for number, count in sorted(counts.items(), key=lambda x: x[1], reverse=True):
+        num += 1
+        print(f"{num}. {number}: {count}")
+
+
+print("-----------------------------------------------")
+count_numbers(numbers)
+
+
+
+
